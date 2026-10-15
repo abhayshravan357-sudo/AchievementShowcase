@@ -1,0 +1,300 @@
+import { useState, useEffect, useRef } from "react";
+import { useMotionValue, useTransform } from "framer-motion";
+import { sendMessage, checkHealth } from "../services/chatApi";
+import "./AIAssistant.css";
+
+const WELCOME_MESSAGE = `Hello! I'm your AI Achievement Assistant. I can help you explore Aarav's achievements, answer questions about projects, awards, certifications, and skills.
+
+Try asking me things like:
+• "Which project best demonstrates technical skills?"
+• "What awards has Aarav won?"
+• "Compare the hackathon projects"
+• "What certifications does Aarav hold?"`;
+
+const SUGGESTED_PROMPTS = [
+  "Tell me the story behind my strongest achievement",
+  "Which projects demonstrate my technical skills?",
+  "Find achievements related to leadership",
+  "Compare my projects and identify their strengths",
+  "Create a professional introduction based on my profile",
+  "What skills should I develop next?"
+];
+
+export default function AIAssistant() {
+  const [messages, setMessages] = useState([
+    { id: 0, role: "assistant", content: WELCOME_MESSAGE, timestamp: new Date().toISOString() }
+  ]);
+  const [inputValue, setInputValue] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(true);
+  const [apiStatus, setApiStatus] = useState("checking");
+  const [error, setError] = useState(null);
+  const messagesEndRef = useRef(null);
+  
+  // Motion values for typing indicator
+  const typingValue = useMotionValue(0);
+  const typingProgress = useTransform(typingValue, [0, 1], [0, 100]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  useEffect(() => {
+    checkHealth().then(data => {
+      setApiStatus(data ? "online" : "offline");
+    });
+  }, []);
+
+  const handleSendMessage = async (message) => {
+    if (!message.trim() || isLoading) return;
+
+    const userMessage = {
+      id: Date.now(),
+      role: "user",
+      content: message.trim(),
+      timestamp: new Date().toISOString()
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setInputValue("");
+    setShowSuggestions(false);
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const result = await sendMessage(message.trim(), messages.slice(-6));
+      
+      const assistantMessage = {
+        id: Date.now() + 1,
+        role: "assistant",
+        content: result.response,
+        timestamp: result.timestamp,
+        source: result.source
+      };
+
+      setMessages(prev => [...prev, assistantMessage]);
+    } catch (err) {
+      setError("Failed to get response. The local assistant will try to help.");
+      const fallbackMessage = {
+        id: Date.now() + 1,
+        role: "assistant",
+        content: "I'm having trouble connecting to the AI service right now. Let me use my local knowledge to help you instead. " +
+          generateLocalResponse(message.trim()),
+        timestamp: new Date().toISOString(),
+        source: "fallback"
+      };
+      setMessages(prev => [...prev, fallbackMessage]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    handleSendMessage(inputValue);
+  };
+
+  const handleSuggestionClick = (prompt) => {
+    handleSendMessage(prompt);
+  };
+
+  const handleClearChat = () => {
+    setMessages([
+      { id: 0, role: "assistant", content: WELCOME_MESSAGE, timestamp: new Date().toISOString() }
+    ]);
+    setShowSuggestions(true);
+    setError(null);
+  };
+
+  function generateLocalResponse(message) {
+    const lower = message.toLowerCase();
+    
+    if (lower.includes("story")) {
+      return "Let me tell you about Aarav's strongest achievement. The IIT Delhi Hackathon 1st place win for MediAssist stands out - it demonstrates AI/ML expertise, full-stack development, and real-world impact.";
+    }
+    
+    if (lower.includes("skill") || lower.includes("develop")) {
+      return "Aarav's skills span Python, React, PyTorch, TensorFlow, AWS, Docker, and C++. Based on the profile gaps, cloud-native architecture and mobile development would be valuable next areas to explore.";
+    }
+    
+    if (lower.includes("compare")) {
+      return "Use the Compare Lab to compare achievements side by side. MediAssist and SmartCampus both showcase strong technical skills, while the research paper demonstrates academic excellence.";
+    }
+    
+    if (lower.includes("introduction") || lower.includes("profile summary")) {
+      return "Aarav Sharma is a 3rd-year Computer Science student at IIT Delhi specializing in AI and full-stack development. With 3 award-winning projects, 4 certifications, and contributions to TensorFlow, Aarav demonstrates expertise across the full development lifecycle.";
+    }
+    
+    if (lower.includes("interview")) {
+      return "For a placement interview, highlight: 1) MediAssist (hackathon win), 2) Efficient Transformers research (ICML), 3) TensorFlow contribution (open source). These demonstrate ML, problem-solving, and collaborative development skills.";
+    }
+    
+    if (lower.includes("showcase first")) {
+      return "For showcasing first, I'd recommend the IIT Delhi Hackathon win. It's a prestigious award, demonstrates full-stack AI development, and has real-world impact at the college health center.";
+    }
+    
+    if (lower.includes("technical skill")) {
+      return "SmartCampus Navigation best demonstrates technical skills: it combines computer vision, graph algorithms, TypeScript, React, and real-time routing - all in a production PWA.";
+    }
+    
+    return "I can help you explore Aarav's achievements! Try asking about projects, awards, certifications, or skills.";
+  }
+
+  const statusText = apiStatus === "online" ? "AI Online" : apiStatus === "offline" ? "Fallback Mode" : "Checking...";
+
+  return (
+    <motion.div className="ai-assistant-page" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1.25] }}>
+      <motion.div className="chat-layout" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
+        <motion.div className="chat-container" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+          <motion.div className="chat-header" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+            <motion.div className="assistant-info" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4 }}>
+              <motion.div className="assistant-avatar" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: 0.5, type: "spring", stiffness: 300, damping: 20 }}>
+                *
+              </motion.div>
+              <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.1 }}>
+                <motion.h2 className="initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4, delay: 0.2 }}>
+                  AI Achievement Assistant
+                </motion.h2>
+                <motion.span className={`api-status ${apiStatus}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4, delay: 0.3 }}>
+                  {statusText}
+                </motion.span>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+          
+          <motion.div className="chat-messages" role="log" aria-live="polite" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+            {messages.map((message) => (
+              <motion.div
+                key={message.id}
+                className={`message ${message.role}`}
+                initial={{ opacity: 0, x: message.role === "user" ? 20 : -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4, delay: message.index * 0.05 }}
+              >
+                <motion.div className="message-bubble" initial={{ scale: 0.95 }} animate={{ scale: 1 }} transition={{ duration: 0.3, type: "spring" }}>
+                  <motion.div
+                    className="message-text"
+                    dangerouslySetInnerHTML={{ __html: formatMessage(message.content) }}
+                  />
+                  <div className="message-footer">
+                    <motion.span className="message-time" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+                      {new Date(message.timestamp).toLocaleTimeString("en-US", {
+                        hour: "2-digit",
+                        minute: "2-digit"
+                      })}
+                    </motion.span>
+                    {message.source && (
+                      <motion.span className="message-source" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+                        {message.source === "ai" ? "AI" : "Local"}
+                      </motion.span>
+                    )}
+                  </div>
+                </motion.div>
+              </motion.div>
+            ))}
+            
+            {isLoading && (
+              <motion.div className="message assistant" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4 }}>
+                <motion.div className="message-bubble">
+                  <motion.div className="typing-indicator">
+                    <motion.span style={{ opacity: typingProgress }} initial={{ opacity: 0 }} animate={{ opacity: [0, 1, 0] }} transition={{ duration: 1.4, ease: "easeInOut", repeat: Infinity }} />
+                    <motion.span style={{ opacity: typingProgress }} initial={{ opacity: 0 }} animate={{ opacity: [0, 1, 0] }} transition={{ duration: 1.4, delay: 0.2, ease: "easeInOut", repeat: Infinity }} />
+                    <motion.span style={{ opacity: typingProgress }} initial={{ opacity: 0 }} animate={{ opacity: [0, 1, 0] }} transition={{ duration: 1.4, delay: 0.4, ease: "easeInOut", repeat: Infinity }} />
+                  </motion.div>
+                </motion.div>
+              </motion.div>
+            )}
+            
+            <motion.div ref={messagesEndRef} />
+          </motion.div>
+          
+          {showSuggestions && (
+            <motion.div className="suggestions-panel" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
+              <motion.p className="suggestions-label" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+                Suggested questions:
+              </motion.p>
+              <motion.div className="prompt-list" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+                {SUGGESTED_PROMPTS.map((prompt, idx) => (
+                  <motion.button
+                    key={idx}
+                    className="prompt-btn"
+                    onClick={() => handleSuggestionClick(prompt)}
+                    disabled={isLoading}
+                    initial={{ scale: 0.9 }}
+                    animate={{ scale: 1 }}
+                    transition={{ duration: 0.3, type: "spring" }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    {prompt}
+                  </motion.button>
+                ))}
+              </motion.div>
+            )}
+          )}
+          
+          {error && (
+            <motion.div className="error-banner" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+              {error}
+            </motion.div>
+          )}
+          
+          <motion.form className="chat-input-form" onSubmit={handleSubmit} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.2 }}>
+            <motion.div className="input-wrapper" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4 }}>
+              <motion.textarea
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                placeholder="Ask about Aarav's achievements..."
+                disabled={isLoading}
+                rows={1}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSubmit(e);
+                  }
+                }}
+                initial={{ scale: 0.9 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 0.3, type: "spring" }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              />
+              <motion.button
+                type="submit"
+                disabled={!inputValue.trim() || isLoading}
+                aria-label="Send message"
+                initial={{ scale: 0.9 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 0.3, type: "spring" }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {isLoading ? "⏳" : "➤"}
+              </motion.button>
+            </motion.div>
+            <motion.p className="input-hint" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+              Press <kbd>Enter</kbd> to send, <kbd>Shift+Enter</kbd> for new line
+            </motion.p>
+          </motion.form>
+        </motion.div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function formatMessage(text) {
+  let formatted = text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+  formatted = formatted
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*(.+?)\*/g, "<em>$1</em>")
+    .replace(/`(.+?)`/g, "<code>$1</code>")
+    .replace(/\n/g, "<br>");
+
+  return formatted;
+}

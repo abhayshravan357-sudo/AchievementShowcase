@@ -1,0 +1,103 @@
+.skills-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-4);
+}
+
+.skills-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.category-title {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 2px solid var(--color-border-subtle);
+}
+
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-3);
+}
+
+.skill-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3);
+  transition: all var(--transition-normal);
+  backdrop-filter: blur(12px);
+}
+
+.skill-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-border-strong);
+}
+
+.skill-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-2);
+}
+
+.skill-name {
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.proficiency-badge {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.proficiency-expert {
+  background: var(--color-accent-gold-dim);
+  color: var(--color-accent-gold);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.proficiency-advanced {
+  background: var(--color-accent-violet-dim);
+  color: var(--color-accent-violet);
+  border: 1px solid rgba(138, 101, 255, 0.3);
+}
+
+.proficiency-intermediate {
+  background: var(--color-accent-cyan-dim);
+  color: var(--color-accent-cyan);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+}
+
+.proficiency-beginner {
+  background: var(--color-accent-emerald-dim);
+  color: var(--color-accent-emerald);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.skill-evidence {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.self-reported-badge {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-dim);
+  background: var(--color-bg-elevated);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+}

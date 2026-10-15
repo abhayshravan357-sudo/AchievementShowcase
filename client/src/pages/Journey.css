@@ -1,0 +1,136 @@
+.journey-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: var(--space-4);
+}
+
+.journey-container {
+  position: relative;
+  padding: var(--space-4) 0;
+}
+
+.timeline-axis {
+  position: absolute;
+  left: 20px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, 
+    var(--color-accent-violet) 0%, 
+    var(--color-accent-cyan) 100%);
+  z-index: 0;
+}
+
+.timeline-events {
+  position: relative;
+  padding-left: var(--space-5);
+}
+
+.timeline-node {
+  display: flex;
+  gap: var(--space-3);
+  position: relative;
+  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-4);
+}
+
+.timeline-node:last-child {
+  margin-bottom: 0;
+}
+
+.timeline-node::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 32px;
+  right: 0;
+  height: 1px;
+  background: var(--color-border-subtle);
+}
+
+.timeline-node:last-child::after {
+  display: none;
+}
+
+.node-marker {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--color-accent-violet) 0%, var(--color-accent-cyan) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.125rem;
+  box-shadow: 0 4px 12px rgba(138, 101, 255, 0.3);
+  z-index: 2;
+  flex-shrink: 0;
+}
+
+.node-content {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  flex: 1;
+  backdrop-filter: blur(12px);
+}
+
+.timeline-node.goal .node-content {
+  background: linear-gradient(145deg, 
+    rgba(16, 185, 129, 0.1) 0%, 
+    rgba(10, 14, 39, 0.8) 100%);
+  border-color: var(--color-accent-emerald);
+}
+
+.timeline-node.upcoming .node-content {
+  opacity: 0.7;
+}
+
+.node-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-1);
+}
+
+.node-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.node-date {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-dim);
+  font-weight: 500;
+}
+
+.node-description {
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--space-2);
+}
+
+.node-link {
+  font-size: var(--font-size-xs);
+  color: var(--color-accent-cyan);
+  font-weight: 500;
+}
+
+@media (max-width: 640px) {
+  .timeline-axis {
+    left: 12px;
+  }
+
+  .timeline-events {
+    padding-left: 32px;
+  }
+
+  .node-marker {
+    width: 32px;
+    height: 32px;
+    font-size: 0.875rem;
+  }
+}

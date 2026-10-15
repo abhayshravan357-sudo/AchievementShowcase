@@ -1,0 +1,115 @@
+.timeline-view {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  backdrop-filter: blur(12px);
+}
+
+.timeline-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.timeline-item {
+  display: flex;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  position: relative;
+  padding-bottom: var(--space-4);
+}
+
+.timeline-item:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.timeline-item:last-child .timeline-content::after {
+  display: none;
+}
+
+.timeline-content::after {
+  content: "";
+  position: absolute;
+  bottom: -12px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--color-border-subtle);
+}
+
+.timeline-marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.marker-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--color-accent-violet) 0%, var(--color-accent-cyan) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  box-shadow: 0 4px 12px rgba(138, 101, 255, 0.3);
+  z-index: 2;
+}
+
+.marker-line {
+  width: 2px;
+  height: calc(100% + 12px);
+  background: var(--color-border-default);
+  margin-top: 4px;
+}
+
+.timeline-content {
+  flex: 1;
+  padding-left: 0;
+}
+
+.timeline-title {
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.timeline-description {
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--space-1);
+}
+
+.timeline-date {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-dim);
+  font-weight: 500;
+}
+
+.timeline-empty {
+  text-align: center;
+  padding: var(--space-6) 0;
+  color: var(--color-text-dim);
+  font-style: italic;
+}
+
+@media (max-width: 640px) {
+  .timeline-item {
+    gap: var(--space-2);
+  }
+  
+  .marker-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
+  }
+  
+  .timeline-title {
+    font-size: var(--font-size-base);
+  }
+}
